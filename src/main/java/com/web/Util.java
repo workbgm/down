@@ -24,6 +24,9 @@ public class Util {
         System.out.println(df.format(new Date()) + ":" + log);
     }
 
+
+
+
     public static void downFile(String url, String path) {
 //        url=url.replaceAll("../","");
         Response resultResponse;
@@ -150,6 +153,8 @@ public class Util {
                 }
             }
         }
+
+
     }
 
 
