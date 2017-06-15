@@ -2,6 +2,8 @@ package com.web;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by wuweimei on 2017/6/9.
@@ -11,6 +13,8 @@ public class SaveFile {
     private static int BUFFER_SIZE = 102400; // 缓冲区大小(缓冲区越大下载的越快,但是要根据自己的服务器配置)
     private Vector vDownLoad = new Vector(); // URL列表
     private Vector vFileList = new Vector(); // 下载后的保存文件名列表
+
+    private static int totalCount=0;
 
     /**
      * 构造方法
@@ -65,6 +69,32 @@ public class SaveFile {
 
         if (DEBUG) {
             System.out.println("下载完成!!!");
+        }
+    }
+
+    public void downLoadByThreadList(int count){
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(count);
+        String url = null;
+        String filename = null;
+
+        // 按列表顺序保存资源
+        int size = vDownLoad.size();
+        totalCount = size;
+        for (int i = 0; i < size; i++) {
+            url = (String) vDownLoad.get(i);
+            filename = (String) vFileList.get(i);
+
+            try {
+                int current = i+1;
+                downFileThread dft=new downFileThread(url,filename,current,size,BUFFER_SIZE);
+                fixedThreadPool.execute(dft);
+            } catch (Exception err) {
+                if (DEBUG) {
+                    System.out.println("资源[" + url + "]下载失败!!!");
+                }
+            }finally {
+//                fixedThreadPool.shutdown();
+            }
         }
     }
 
@@ -165,6 +195,16 @@ public class SaveFile {
         System.getProperties().put("proxySet", "true");
         System.getProperties().put("proxyHost", proxy);
         System.getProperties().put("proxyPort", proxyPort);
+    }
+
+    public static void  isFinalshed(){
+        --totalCount;
+        if(totalCount==0){
+            System.out.println("-------所有下载任务完成!-------");
+            System.exit(0);
+        }else{
+            System.out.println("还剩【"+String.valueOf(totalCount)+"】个下载任务");
+        }
     }
 
 }

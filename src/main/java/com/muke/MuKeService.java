@@ -46,7 +46,8 @@ public class MuKeService {
             Util.createFile(fullPath);
             sf.addItem(mb.getUrl(),fullPath);
         }
-        sf.downLoadByList();
+        //sf.downLoadByList();
+        sf.downLoadByThreadList(8);
     }
 
 
